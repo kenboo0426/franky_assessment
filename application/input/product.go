@@ -1,7 +1,7 @@
 package input
 
-type SearchProductURIDTO struct {
-	Brand string `uri:"brand" binding:"required"`
+type SearchProductQueryDTO struct {
+	Brand string `form:"brand" json:"brand" binding:"required"`
 }
 
 type CreateProductDTO struct {

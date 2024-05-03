@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -15,6 +18,12 @@ import (
 	"github.com/uptrace/bun/migrate"
 	"github.com/urfave/cli/v2"
 )
+
+type CreateProductRequest struct {
+	Name   string   `json:"name"`
+	Brand  string   `json:"brand"`
+	Images []string `json:"images"`
+}
 
 func main() {
 	err := godotenv.Load("../.env")
@@ -189,6 +198,108 @@ func newDBCommand(migrator *migrate.Migrator) *cli.Command {
 						return nil
 					}
 					fmt.Printf("marked as applied %s\n", group)
+					return nil
+				},
+			},
+			{
+				Name:  "init_data",
+				Usage: "insert product data",
+				Action: func(c *cli.Context) error {
+					requestData := []CreateProductRequest{
+						{
+							Name:  "KENZO 'TIGER CREST' POLO SHIRT",
+							Brand: "KENZO",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/20220304040105603_E52---kenzo---FA65PO0014PU01B_4_M1.jpg", "https://stok.store/cdn/shop/files/20220304040124567_E52---kenzo---FA65PO0014PU01B_5_M1.jpg",
+								"https://stok.store/cdn/shop/files/20220304040128900_E52---kenzo---FA65PO0014PU01B_7_M1.jpg",
+							},
+						},
+						{
+							Name:  "A.P.C. 'AURELIA' DENIM DRESS",
+							Brand: "A.P.C.",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/5T953DF0503F33F0002_01_M_2024-02-22T08-12-47.316Z.jpg",
+								"https://stok.store/cdn/shop/files/20211218140947600_E52---apc---COETKF05822IAL_2_M1.jpg",
+							},
+						},
+						{
+							Name:  "MIU MIU VINTAGE LEATHER ANKLE BOOTS",
+							Brand: "MIU MIU",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/5T953DF0503F33F0002_01_M_2024-02-22T08-12-47.316Z.jpg",
+								"https://stok.store/cdn/shop/files/5T953DF0503F33F0002_04_M_2024-02-22T08-12-47.566Z.jpg",
+							},
+						},
+						{
+							Name:  "Alexander McQUEEN 'SLIM TREAD' ANKLE BOOTS",
+							Brand: "Alexander McQUEEN",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/20220125140133136_E52---alexander_20mcqueen---690812W4SQ11053_1_M1.jpg",
+							},
+						},
+						{
+							Name:  "STIVALETTO",
+							Brand: "Alexander McQUEEN",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/757487WIDU11000_2023-07-07T07-27-52.221Z.jpg",
+								"https://stok.store/cdn/shop/files/757487WIDU11000_5_P_2023-07-07T07-27-52.533Z.jpg",
+								"https://stok.store/cdn/shop/files/757487WIDU11000_3_P_2023-07-07T07-27-52.392Z.jpg",
+							},
+						},
+						{
+							Name:  "Alexander McQUEEN Black leather zipped card holder with logo",
+							Brand: "Alexander McQUEEN",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/6831171AAMJ_O_ALEXQ-1070.a.jpg",
+							},
+						},
+						{
+							Name:  "Alexander McQUEEN White and clay Oversize Sneaker",
+							Brand: "Alexander McQUEEN",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/718139WIEE5_O_ALEXQ-8742.a.jpg",
+							},
+						},
+						{
+							Name:  "Alexander McQUEEN Black camera bag with leather details",
+							Brand: "Alexander McQUEEN",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/7262921AAQ0_O_ALEXQ-1000.a.jpg",
+							},
+						},
+						{
+							Name:  "A.P.C. 'GRACE SMALL' CROSSBODY BAG",
+							Brand: "A.P.C.",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/20230505000427217_A55---apc---COGFAF61413LZZ_1_M1.jpg",
+								"https://stok.store/cdn/shop/files/20230505000427378_A55---apc---COGFAF61413LZZ_2_M1.jpg",
+								"https://stok.store/cdn/shop/files/20230505000427514_A55---apc---COGFAF61413LZZ_3_M1.jpg",
+								"https://stok.store/cdn/shop/files/20230505000432125_A55---apc---COGFAF61413LZZ_4_M1.jpg",
+							},
+						},
+						{
+							Name:  "A.P.C. JAMIE' CROSSBODY BAG",
+							Brand: "A.P.C.",
+							Images: []string{
+								"https://stok.store/cdn/shop/files/20220221181331577_E52---apc---PXBMWF63412LZZBLACK_3_M1.jpg",
+								"https://stok.store/cdn/shop/files/20220221181331639_E52---apc---PXBMWF63412LZZBLACK_4_M1.jpg",
+							},
+						},
+					}
+
+					for _, d := range requestData {
+						jsonData, err := json.Marshal(d)
+						if err != nil {
+							return err
+						}
+
+						_, err = http.Post("http://localhost:3000/api/product", "application/json", bytes.NewBuffer(jsonData))
+						if err != nil {
+							return err
+						}
+					}
+
+					fmt.Println("success insert data")
 					return nil
 				},
 			},

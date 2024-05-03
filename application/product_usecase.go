@@ -14,7 +14,7 @@ import (
 
 type IProductUsecase interface {
 	GetAllProduct(ctx context.Context) (*output.GetAllProductDTO, error)
-	SearchProduct(ctx context.Context, input *input.SearchProductURIDTO) (*output.SearchProductDTO, error)
+	SearchProduct(ctx context.Context, input *input.SearchProductQueryDTO) (*output.SearchProductDTO, error)
 	CreateProduct(ctx context.Context, input *input.CreateProductDTO) (*output.CreateProductDTO, error)
 }
 
@@ -48,7 +48,7 @@ func (r productUsecase) GetAllProduct(ctx context.Context) (*output.GetAllProduc
 	return (*output.GetAllProductDTO)(common.Ptr(dto.NewProducts(products))), nil
 }
 
-func (r productUsecase) SearchProduct(ctx context.Context, input *input.SearchProductURIDTO) (*output.SearchProductDTO, error) {
+func (r productUsecase) SearchProduct(ctx context.Context, input *input.SearchProductQueryDTO) (*output.SearchProductDTO, error) {
 	products, err := r.IProductService.FindByBrandIDWithDetail(ctx, input.Brand)
 	if err != nil {
 		return nil, err
@@ -58,11 +58,15 @@ func (r productUsecase) SearchProduct(ctx context.Context, input *input.SearchPr
 }
 
 func (r productUsecase) CreateProduct(ctx context.Context, input *input.CreateProductDTO) (*output.CreateProductDTO, error) {
-	brand, err := r.IBrandRepository.Create(ctx, &model.Brand{
-		Name: input.Brand,
-	})
-	if err != nil {
-		return nil, err
+	brand, _ := r.IBrandRepository.FindByName(ctx, input.Brand)
+	if brand == nil {
+		if newBrand, err := r.IBrandRepository.Create(ctx, &model.Brand{
+			Name: input.Brand,
+		}); err != nil {
+			return nil, err
+		} else {
+			brand = newBrand
+		}
 	}
 
 	product, err := r.IProductRepository.Create(ctx, &model.Product{
@@ -81,10 +85,13 @@ func (r productUsecase) CreateProduct(ctx context.Context, input *input.CreatePr
 		}
 	}
 
-	_, err = r.IProductImageRepository.CreateInBatch(ctx, images)
+	productImages, err := r.IProductImageRepository.CreateInBatch(ctx, images)
 	if err != nil {
 		return nil, err
 	}
 
-	return &output.CreateProductDTO{ID: product.ID}, nil
+	product.Brand = brand
+	product.ProductImages = productImages
+
+	return (*output.CreateProductDTO)(dto.NewProduct(product)), nil
 }

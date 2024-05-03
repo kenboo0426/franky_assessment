@@ -22,15 +22,14 @@ func InitializeHTTPServer() {
 	ctx := context.Background()
 
 	db := mysql.NewDBConnection()
-	mysqlClient := mysql.NewMysqlClient(db)
 
 	// Repository
-	productRepository := dao.NewProductRepository(mysqlClient)
-	productImageRepository := dao.NewProductImageRepository(mysqlClient)
-	brandRepository := dao.NewBrandRepository(mysqlClient)
+	productRepository := dao.NewProductRepository(db)
+	productImageRepository := dao.NewProductImageRepository(db)
+	brandRepository := dao.NewBrandRepository(db)
 
 	// Service
-	productService := service.NewProductService(mysqlClient)
+	productService := service.NewProductService(db)
 
 	// Usecase
 	productUsecase := application.NewProductUsecase(brandRepository, productRepository, productImageRepository, productService)

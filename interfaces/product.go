@@ -35,7 +35,7 @@ func (r productHandler) GetAll(c *gin.Context) {
 
 func (r productHandler) Search(c *gin.Context) {
 	request := request.SearchProductDTO{}
-	if err := c.ShouldBindUri(&request); err != nil {
+	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}

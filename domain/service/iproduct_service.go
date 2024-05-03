@@ -8,5 +8,5 @@ import (
 
 type IProductService interface {
 	FindAllWithDetail(ctx context.Context) ([]model.Product, error)
-	FindByBrandIDWithDetail(ctx context.Context, brandID string) ([]model.Product, error)
+	FindByBrandIDWithDetail(ctx context.Context, brandName string) ([]model.Product, error)
 }

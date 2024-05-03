@@ -1,0 +1,27 @@
+#################
+#
+# Products
+#
+#################
+
+### get products
+GET /api/product
+Content-Type: application/json
+Host: {{host}}
+
+### get products
+GET /api/product/search?brand=brand A
+Content-Type: application/json
+Host: {{host}}
+
+### create product
+POST /api/product
+Content-Type: application/json
+Host: {{host}}
+
+{
+  "name": "Product A",
+  "brand": "brand A",
+  "images": ["https://example.com/image1.jpg","https://example.com/image2.jpg"]
+}
+
