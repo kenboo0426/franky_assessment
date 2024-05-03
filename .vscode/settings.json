@@ -1,0 +1,11 @@
+{
+  "rest-client.rememberCookiesForSubsequentRequests": false,
+  "rest-client.decodeEscapedUnicodeCharacters": true,
+  "rest-client.environmentVariables": {
+    "$shared": {
+    },
+    "local": {
+      "host": "localhost:3000"
+    }
+  },
+}
